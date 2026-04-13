@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>ATOMIC NEXUS | The Future of Energy</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#81ecff", "primary-container": "#00e3fd", "on-primary-fixed": "#003840",
+                        secondary: "#2ff801", "secondary-container": "#106e00",
+                        error: "#ff716c",
+                        background: "#070d1f", surface: "#070d1f", "surface-variant": "#1c253e",
+                        "on-surface": "#dfe4fe", "on-surface-variant": "#a5aac2",
+                        "outline-variant": "#41475b",
+                        "surface-container-low": "#0c1326", "surface-container-high": "#171f36", "surface-container-highest": "#1c253e"
+                    },
+                    fontFamily: { headline: ["Space Grotesk"], body: ["Manrope"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Manrope', sans-serif; background-color: #070d1f; color: #dfe4fe; overflow-x: hidden; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glow-cyan { text-shadow: 0 0 20px rgba(129, 236, 255, 0.4); }
+        .plasma-bg { background: radial-gradient(circle at center, rgba(129, 236, 255, 0.15) 0%, transparent 70%); }
+    </style>
+</head>
+<body class="bg-background selection:bg-primary selection:text-on-primary-fixed">
+
+<nav class="fixed top-0 w-full z-50 bg-[#070d1f]/40 backdrop-blur-3xl border-b border-[#81ecff]/10 shadow-[0_0_40px_rgba(129,236,255,0.06)] flex justify-between items-center px-8 h-20 mx-auto font-['Space_Grotesk'] tracking-tight">
+    <div class="text-xl font-bold tracking-tighter text-[#81ecff]">ATOMIC NEXUS</div>
+    <div class="hidden md:flex gap-8 items-center">
+        <a class="text-[#81ecff] border-b-2 border-[#81ecff] pb-1 hover:scale-105 transition-all" href="#">Technology</a>
+        <a class="text-[#dfe4fe]/70 hover:text-[#81ecff] hover:scale-105 transition-all" href="#">Diagnostics</a>
+        <a class="text-[#dfe4fe]/70 hover:text-[#81ecff] hover:scale-105 transition-all" href="#">Global Map</a>
+        <a class="text-[#dfe4fe]/70 hover:text-[#81ecff] hover:scale-105 transition-all" href="#">Safety</a>
+    </div>
+    <div class="flex items-center gap-6">
+        <a href="https://physapp-thorium-project-mqwyhbhyaltvdr82qptzbs.streamlit.app" target="_blank" class="bg-primary text-on-primary-fixed px-5 py-2.5 rounded-lg font-bold text-xs tracking-widest hover:scale-105 transition-all inline-block">START SIMULATION</a>
+    </div>
+</nav>
+
+<section class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+    <div class="absolute inset-0 plasma-bg pointer-events-none"></div>
+    <div class="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div class="space-y-8">
+            <div class="inline-flex items-center px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-xs font-bold tracking-widest uppercase">
+                Status: All Systems Operational
+            </div>
+            <h1 class="text-6xl md:text-8xl font-headline font-bold text-on-surface leading-[0.9] tracking-tighter glow-cyan">
+                Atomic Energy: <br/>Powering the Future
+            </h1>
+            <p class="text-xl text-on-surface-variant max-w-lg font-body leading-relaxed">
+                Unlocking the fundamental power of the universe. Clean, sustainable, and limitless energy through advanced fusion and modular reactor technology.
+            </p>
+            <div class="flex flex-wrap gap-4">
+                <button class="bg-gradient-to-tr from-primary to-primary-container text-on-primary-fixed px-8 py-4 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition-transform">
+                    Explore Technology <span class="material-symbols-outlined">rocket_launch</span>
+                </button>
+                <a href="https://physapp-thorium-project-mqwyhbhyaltvdr82qptzbs.streamlit.app" target="_blank" class="border border-outline-variant px-8 py-4 rounded-xl font-bold text-on-surface hover:bg-surface-variant/50 transition-all flex items-center gap-2 w-fit">
+                    View Simulation <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+                </a>
+            </div>
+        </div>
+        <div class="relative group">
+            <div class="absolute -inset-10 bg-primary/20 blur-[100px] rounded-full animate-pulse"></div>
+            <div class="relative bg-surface-variant/20 rounded-full p-8 border border-primary/10 backdrop-blur-md">
+                <img alt="Atomic Reactor" class="w-full h-full object-cover rounded-full mix-blend-screen opacity-90 filter drop-shadow-[0_0_50px_rgba(0,227,253,0.4)]" src="reactor.jpg">
+            </div>
+            <div class="absolute top-10 right-0 bg-surface-container-highest/80 border border-primary/20 p-4 rounded-xl backdrop-blur-xl shadow-2xl">
+                <div class="text-[10px] text-primary font-headline tracking-[0.2em] mb-1">CORE STABILITY</div>
+                <div id="hero-stability" class="text-2xl font-black font-headline animate-pulse">99.98%</div>
+            </div>
+            <div class="absolute bottom-20 -left-10 bg-surface-container-highest/80 border border-secondary/20 p-4 rounded-xl backdrop-blur-xl shadow-2xl">
+                <div class="text-[10px] text-secondary font-headline tracking-[0.2em] mb-1">ENERGY OUTPUT</div>
+                <div id="hero-power" class="text-2xl font-black font-headline animate-pulse">4.21 GW</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-24 bg-surface-container-low border-y border-outline-variant/30">
+    <div class="container mx-auto px-6">
+        <div class="flex justify-between items-end mb-12">
+            <div>
+                <span class="text-primary font-headline text-xs tracking-widest uppercase">LIVE TELEMETRY</span>
+                <h2 class="text-4xl font-headline font-bold text-on-surface mt-2">System Diagnostics</h2>
+            </div>
+            <div class="text-xs text-secondary font-mono animate-pulse">LIVE_FEED_ESTABLISHED</div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-surface-container-high border border-outline-variant rounded-2xl p-6">
+                <div class="text-primary material-symbols-outlined mb-4">bolt</div>
+                <div class="text-xs text-on-surface-variant tracking-widest mb-1">POWER OUTPUT</div>
+                <div id="live-power" class="text-3xl font-black font-headline transition-all duration-300">1,244 MW</div>
+            </div>
+            <div class="bg-surface-container-high border border-outline-variant rounded-2xl p-6">
+                <div class="text-primary material-symbols-outlined mb-4">ac_unit</div>
+                <div class="text-xs text-on-surface-variant tracking-widest mb-1">COOLING LEVELS</div>
+                <div id="live-cooling" class="text-3xl font-black font-headline transition-all duration-300">326.4°C</div>
+            </div>
+            <div class="bg-surface-container-high border border-outline-variant rounded-2xl p-6">
+                <div class="text-primary material-symbols-outlined mb-4">shield</div>
+                <div class="text-xs text-on-surface-variant tracking-widest mb-1">CORE INTEGRITY</div>
+                <div id="live-integrity" class="text-3xl font-black font-headline transition-all duration-300">99.98%</div>
+            </div>
+            <div class="bg-surface-container-high border border-outline-variant rounded-2xl p-6">
+                <div class="text-primary material-symbols-outlined mb-4">analytics</div>
+                <div class="text-xs text-on-surface-variant tracking-widest mb-1">REACTIVITY</div>
+                <div id="live-reactivity" class="text-3xl font-black font-headline transition-all duration-300">95.4 PCM</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-32">
+    <div class="container mx-auto px-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div class="order-2 lg:order-1">
+                <div class="space-y-6">
+                    <h2 class="text-4xl font-headline font-bold text-on-surface">Environmental Impact</h2>
+                    <p class="text-on-surface-variant leading-relaxed">
+                        Atomic energy is the cornerstone of a net-zero future. Compared to traditional fossil fuels, it offers a radical reduction in carbon footprint while maintaining high-density power generation.
+                    </p>
+                </div>
+            </div>
+            <div class="order-1 lg:order-2 bg-surface-container-high p-8 rounded-2xl border border-outline-variant shadow-2xl">
+                <div style="position: relative; height:300px; width:100%">
+                    <canvas id="emissionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-32 bg-surface-container-low">
+    <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-4xl font-headline font-bold text-center mb-16 glow-cyan">Uranium vs Thorium</h2>
+            <div class="bg-surface-container-high rounded-3xl border border-outline-variant overflow-hidden shadow-2xl">
+                <table class="w-full text-left font-body">
+                    <thead>
+                        <tr class="border-b border-outline-variant bg-surface-container-highest">
+                            <th class="p-6 text-xs font-headline tracking-widest text-primary uppercase">Feature</th>
+                            <th class="p-6 text-xs font-headline tracking-widest text-on-surface uppercase">Uranium-235</th>
+                            <th class="p-6 text-xs font-headline tracking-widest text-secondary uppercase">Thorium-232</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-outline-variant">
+                        <tr>
+                            <td class="p-6 font-bold text-sm">Abundance</td>
+                            <td class="p-6 text-on-surface-variant text-sm">Relatively Rare</td>
+                            <td class="p-6 text-secondary text-sm font-semibold">3-4x more abundant</td>
+                        </tr>
+                        <tr>
+                            <td class="p-6 font-bold text-sm">Energy Density</td>
+                            <td class="p-6 text-on-surface-variant text-sm">High (Standard)</td>
+                            <td class="p-6 text-secondary text-sm font-semibold">Extremely High</td>
+                        </tr>
+                        <tr>
+                            <td class="p-6 font-bold text-sm">Waste Life</td>
+                            <td class="p-6 text-on-surface-variant text-sm">10,000+ years</td>
+                            <td class="p-6 text-secondary text-sm font-semibold">~300-500 years</td>
+                        </tr>
+                        <tr>
+                            <td class="p-6 font-bold text-sm">Meltdown Risk</td>
+                            <td class="p-6 text-on-surface-variant text-sm">Passive cooling needed</td>
+                            <td class="p-6 text-secondary text-sm font-semibold">Inherently safer</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-32 relative overflow-hidden">
+    <div class="container mx-auto px-6">
+        <h2 class="text-4xl font-headline font-bold mb-16 text-center">Advanced Safety Systems</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <div class="bg-surface-container-low border border-outline-variant rounded-3xl p-10 hover:border-primary/50 transition-all">
+                <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-8">
+                    <span class="material-symbols-outlined text-primary">security</span>
+                </div>
+                <h3 class="text-2xl font-headline font-bold mb-4">Passive Safety Systems</h3>
+                <p class="text-on-surface-variant leading-relaxed mb-6">Gravity-fed cooling and heat-resistant ceramic cladding ensure reactor safety even in complete power loss scenarios. No human intervention required.</p>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant rounded-3xl p-10 hover:border-error/50 transition-all">
+                <div class="w-12 h-12 bg-error/10 rounded-xl flex items-center justify-center mb-8">
+                    <span class="material-symbols-outlined text-error">bolt</span>
+                </div>
+                <h3 class="text-2xl font-headline font-bold mb-4">Emergency Shutdown</h3>
+                <p class="text-on-surface-variant leading-relaxed mb-6">Our 'SCRAM' protocols utilize electromagnetic control rod suspension. Total reactivity suppression achieved in under 1.8 seconds.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-32 bg-surface-container-lowest border-t border-outline-variant/30">
+    <div class="container mx-auto px-6">
+        <div class="text-center mb-20">
+            <h2 class="text-5xl font-headline font-bold mb-6">Innovations for Tomorrow</h2>
+            <div class="h-1 w-24 bg-primary mx-auto rounded-full"></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-surface-container-high border border-outline-variant p-2 rounded-2xl group overflow-hidden hover:scale-[1.02] transition-transform shadow-lg">
+                <div class="aspect-video w-full overflow-hidden rounded-xl mb-4 relative">
+                   <img src="smr.jpg" alt="Small Modular Reactors" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                </div>
+                <div class="p-4">
+                    <h4 class="text-xl font-headline font-bold mb-2">Small Modular Reactors</h4>
+                    <p class="text-sm text-on-surface-variant leading-relaxed">Decentralizing the power grid with factory-built, deployable atomic cells.</p>
+                </div>
+            </div>
+            <div class="bg-surface-container-high border border-outline-variant p-2 rounded-2xl group overflow-hidden hover:scale-[1.02] transition-transform shadow-lg">
+                <div class="aspect-video w-full overflow-hidden rounded-xl mb-4 relative">
+                    <img src="ai.jpg" alt="AI Monitoring" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                </div>
+                <div class="p-4">
+                    <h4 class="text-xl font-headline font-bold mb-2 text-secondary">AI Monitoring</h4>
+                    <p class="text-sm text-on-surface-variant leading-relaxed">Predictive maintenance and real-time core optimization through deep learning.</p>
+                </div>
+            </div>
+            <div class="bg-surface-container-high border border-outline-variant p-2 rounded-2xl group overflow-hidden hover:scale-[1.02] transition-transform shadow-lg">
+                <div class="aspect-video w-full overflow-hidden rounded-xl mb-4 relative">
+                     <img src="twin.jpg" alt="Digital Twin" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                </div>
+                <div class="p-4">
+                    <h4 class="text-xl font-headline font-bold mb-2">Digital Twin Tech</h4>
+                    <p class="text-sm text-on-surface-variant leading-relaxed">A 1:1 virtual replica for safe testing, operational modeling, and remote control.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="bg-[#0c1326] w-full py-12 px-8 border-t border-[#81ecff]/5 font-['Manrope'] text-sm tracking-wide uppercase font-['Space_Grotesk'] text-center">
+    <div class="max-w-7xl mx-auto space-y-4">
+        <div class="text-lg font-black text-[#81ecff]">ATOMIC NEXUS</div>
+        <p class="text-[#dfe4fe]/50 normal-case">Pioneering the next generation of safe, sustainable energy.</p>
+        <div class="text-[#2ff801] font-bold">© 2026 THE ATOMIC NEXUS. ALL SYSTEMS OPERATIONAL.</div>
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // 1. Инициализация и дизайн графика Chart.js
+        const ctx = document.getElementById('emissionChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Nuclear (Торий/Уран)', 'Natural Gas (Газ)', 'Coal (Уголь)'],
+                datasets: [{
+                    label: 'CO2 Emissions (g/kWh)',
+                    data: [12, 490, 820],
+                    backgroundColor: ['#00e3fd', '#4f5469', '#ff716c'],
+                    borderRadius: 4,
+                    barThickness: 60 // Делает столбцы аккуратнее
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Сравнение выбросов CO2 (грамм на кВт·ч)',
+                        color: '#dfe4fe',
+                        font: { family: 'Space Grotesk', size: 18, weight: 'bold' },
+                        padding: { bottom: 20 }
+                    },
+                    tooltip: { 
+                        enabled: true, 
+                        backgroundColor: '#070d1f', 
+                        titleFont: { family: 'Space Grotesk', size: 14 },
+                        bodyFont: { family: 'Manrope', size: 14, weight: 'bold' },
+                        borderColor: '#41475b',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: 'rgba(129, 236, 255, 0.05)' }, 
+                        ticks: { color: '#a5aac2', font: { family: 'Manrope' } } 
+                    },
+                    x: { 
+                        grid: { display: false }, 
+                        ticks: { color: '#dfe4fe', font: { family: 'Space Grotesk', weight: 'bold' } } 
+                    }
+                }
+            }
+        });
+
+        // 2. Скрипт "Живой Телеметрии" (Симуляция изменения данных)
+        setInterval(() => {
+            // Флуктуация мощности (1240 - 1248 MW)
+            const power = (1244 + (Math.random() * 4 - 2)).toFixed(0);
+            document.getElementById('live-power').innerText = power + ' MW';
+
+            // Флуктуация температуры (326.0 - 326.8 °C)
+            const cooling = (326.4 + (Math.random() * 0.8 - 0.4)).toFixed(1);
+            document.getElementById('live-cooling').innerText = cooling + '°C';
+
+            // Флуктуация реактивности (95.0 - 95.8 PCM)
+            const reactivity = (95.4 + (Math.random() * 0.8 - 0.4)).toFixed(1);
+            document.getElementById('live-reactivity').innerText = reactivity + ' PCM';
+            
+            // Динамика на Hero секции
+            const heroPower = (4.20 + (Math.random() * 0.05)).toFixed(2);
+            document.getElementById('hero-power').innerText = heroPower + ' GW';
+            
+        }, 2500); // Обновление каждые 2.5 секунды
+    });
+</script>
+</body>
+</html>
