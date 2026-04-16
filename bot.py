@@ -6,6 +6,7 @@ import os
 import random
 import re
 import requests
+import time
 
 # Токен для доступа к API Telegram получаем из переменной окружения
 API_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
@@ -287,12 +288,12 @@ def process_region_step(message):
         "Теперь выберите тип загрязнения:",
         reply_markup=markup
     )
-    bot.register_next_step_handler(message, process_pollution_step)
 
 @bot.message_handler(func=lambda message: message.text == "⬅️ Назад")
 def process_back(message):
     send_welcome(message)
 
+@bot.message_handler(func=lambda message: message.text in POLLUTION_COEFFICIENTS.keys())
 def process_pollution_step(message):
     """Обработчик выбора типа загрязнения."""
     if message.text == "⬅️ Назад":
@@ -391,7 +392,18 @@ def process_area_step(message):
 
     # Генерация графика
     plt.figure(figsize=(10, 6))
-    plt.plot(years, areas, marker='o', linestyle='-', color='red', linewidth=2, markersize=8)
+
+    # Цветовое зонирование (Color Zoning)
+    plt.axvspan(0, 5, color='green', alpha=0.15, label='Шанс на восстановление (0-5 лет)')
+    plt.axvspan(5, 10, color='orange', alpha=0.15, label='Предупреждение (5-10 лет)')
+    plt.axvspan(10, 20, color='red', alpha=0.15, label='Экологическая катастрофа (10-20 лет)')
+
+    # Линия прогноза (Styling)
+    plt.plot(years, areas, marker='o', linestyle='-', color='darkred', linewidth=2.5, markersize=10)
+
+    # Критическая линия (Threshold Line)
+    plt.axhline(y=10000, color='black', linestyle='--', linewidth=1.5)
+    plt.text(0.5, 10500, 'Critical Limit', color='black', fontsize=10, fontweight='bold')
 
     # Добавление подписей данных (exact numbers)
     for i, txt in enumerate(areas):
@@ -409,6 +421,7 @@ def process_area_step(message):
     plt.xlabel('Годы', fontsize=12)
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.xticks(years)
+    plt.legend(loc='upper left', fontsize=9)
 
     # Сохранение графика в буфер памяти
     buf = io.BytesIO()
@@ -578,4 +591,9 @@ def handle_free_text(message):
         )
 
 if __name__ == '__main__':
-    bot.infinity_polling(timeout=60, long_polling_timeout=60)
+    while True:
+        try:
+            bot.infinity_polling(timeout=60, long_polling_timeout=60)
+        except Exception as e:
+            print(f"Ошибка polling: {e}")
+            time.sleep(5)
