@@ -187,12 +187,20 @@ def process_weather_command(message):
     temp = weather['temp']
     temp_str = f"+{temp}" if isinstance(temp, (int, float)) and temp > 0 else str(temp)
 
-    bot.send_message(
-        chat_id,
-        f"☀️ Текущая погода в Актау:\n"
+    weather_msg = (
+        f"☀️ *Текущая погода в Актау:*\n"
         f"🌡 Температура: {temp_str}°C\n"
         f"💨 Ветер: {weather['wind_speed']} м/с\n"
         f"☁️ Состояние: {weather.get('description', 'Нет данных')}"
+    )
+
+    if weather['wind_speed'] > 10.0:
+        weather_msg += "\n\n⚠️ **ВНИМАНИЕ: Высокая скорость ветра! Риск переноса токсичной пыли увеличен. Рекомендуется использовать защитные маски и закрыть окна.**"
+
+    bot.send_message(
+        chat_id,
+        weather_msg,
+        parse_mode='Markdown'
     )
 
 @bot.message_handler(commands=['start', 'help'])
