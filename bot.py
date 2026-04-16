@@ -160,6 +160,9 @@ def assess_dust_risk(wind_speed):
 def process_weather_command(message):
     """Обработчик команды /weather и кнопки '☀️ Текущая погода'."""
     chat_id = message.chat.id
+    bot.clear_step_handler_by_chat_id(chat_id)
+    user_data.pop(chat_id, None)
+
     # Используем Актау по умолчанию как запрошено
     weather = get_weather_data('Актау')
 
@@ -179,8 +182,8 @@ def send_welcome(message):
     """Обработчик команды /start и /help."""
     # Сброс состояния для предотвращения soft-lock
     chat_id = message.chat.id
-    if chat_id in user_data:
-        user_data[chat_id].pop('state', None)
+    bot.clear_step_handler_by_chat_id(chat_id)
+    user_data.pop(chat_id, None)
 
     markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     buttons = [KeyboardButton(region) for region in WIND_SPEEDS.keys()]
@@ -201,6 +204,9 @@ def send_welcome(message):
 def process_quiz(message):
     """Обработчик эко-викторины."""
     chat_id = message.chat.id
+    bot.clear_step_handler_by_chat_id(chat_id)
+    if chat_id in user_data:
+        user_data[chat_id].pop('state', None)
     question_data = random.choice(QUIZ_QUESTIONS)
 
     # Сохраняем правильный ответ для проверки, не стирая счетчик
@@ -255,10 +261,14 @@ def callback_quiz_answer(call):
     bot.send_message(chat_id, response_text, parse_mode='Markdown')
 
 
-@bot.message_handler(func=lambda message: message.text in WIND_SPEEDS.keys() and user_data.get(message.chat.id, {}).get('state') != 'eco_risk')
+@bot.message_handler(func=lambda message: message.text in WIND_SPEEDS.keys())
 def process_region_step(message):
     """Обработчик выбора района для прогноза деградации."""
     chat_id = message.chat.id
+    bot.clear_step_handler_by_chat_id(chat_id)
+    if chat_id in user_data:
+        user_data[chat_id].pop('state', None)
+
     region = message.text
 
     # Получаем динамические погодные данные
@@ -297,6 +307,7 @@ def process_back(message):
 def process_pollution_step(message):
     """Обработчик выбора типа загрязнения."""
     if message.text == "⬅️ Назад":
+        bot.clear_step_handler_by_chat_id(message.chat.id)
         process_back(message)
         return
 
@@ -305,6 +316,7 @@ def process_pollution_step(message):
 
     if chat_id not in user_data or 'region' not in user_data[chat_id]:
         bot.send_message(chat_id, "Пожалуйста, начните сначала с команды /start")
+        bot.clear_step_handler_by_chat_id(chat_id)
         return
 
     user_data[chat_id]['pollution'] = pollution
@@ -480,6 +492,8 @@ def back_to_menu(message):
 def process_koshkar_ata_info(message):
     """Справка о хвостохранилище Кошкар-Ата."""
     chat_id = message.chat.id
+    bot.clear_step_handler_by_chat_id(chat_id)
+    user_data.pop(chat_id, None)
     info_text = (
         "☢️ *Хвостохранилище Кошкар-Ата*\n\n"
         "Кошкар-Ата — это искусственное бессточное озеро-впадина недалеко от Актау, куда десятилетиями сливались "
@@ -499,6 +513,8 @@ def process_koshkar_ata_info(message):
 def process_eco_risk_start(message):
     """Начало процесса оценки эко-риска на сегодня."""
     chat_id = message.chat.id
+    bot.clear_step_handler_by_chat_id(chat_id)
+    user_data.pop(chat_id, None)
 
     if chat_id not in user_data:
         user_data[chat_id] = {}
@@ -556,7 +572,7 @@ def eco_advisor(chat_id):
     )
     bot.send_message(chat_id, guide, parse_mode='Markdown')
 
-@bot.message_handler(func=lambda message: True)
+@bot.message_handler(content_types=['text'], func=lambda message: True)
 def handle_free_text(message):
     """Обработчик свободного текста."""
     text = message.text.lower()
