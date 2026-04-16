@@ -332,9 +332,12 @@ def get_restoration_plan(region, pollution):
 
     return plan
 
-def calculate_degradation(area, wind_speed, pollution_coef, years):
-    """Математическая модель расчета площади деградации."""
-    growth_rate = 1 + (wind_speed * pollution_coef * 0.05)
+def calculate_degradation(area, wind_speed, pollution_coef, years, reduction=0.0):
+    """Математическая модель расчета площади деградации.
+    reduction - процент снижения скорости деградации (например, 0.4 для 40%)
+    """
+    growth_increment = (wind_speed * pollution_coef * 0.05) * (1 - reduction)
+    growth_rate = 1 + growth_increment
     return area * (growth_rate ** years)
 
 def process_area_step(message):
@@ -367,6 +370,9 @@ def process_area_step(message):
     # Расчет площади для каждого года
     areas = [calculate_degradation(area, wind_speed, pollution_coef, y) for y in years]
 
+    # Расчет площади для восстановительного сценария (Сценарий B - 40% снижение)
+    recovery_areas = [calculate_degradation(area, wind_speed, pollution_coef, y, reduction=0.4) for y in years]
+
     # Оценка риска
     risk_level = assess_dust_risk(wind_speed)
 
@@ -398,8 +404,11 @@ def process_area_step(message):
     plt.axvspan(5, 10, color='orange', alpha=0.15, label='Предупреждение (5-10 лет)')
     plt.axvspan(10, 20, color='red', alpha=0.15, label='Экологическая катастрофа (10-20 лет)')
 
-    # Линия прогноза (Styling)
-    plt.plot(years, areas, marker='o', linestyle='-', color='darkred', linewidth=2.5, markersize=10)
+    # Линия прогноза (Business as usual)
+    plt.plot(years, areas, marker='o', linestyle='-', color='darkred', linewidth=2.5, markersize=10, label='Business as usual')
+
+    # Линия восстановительного сценария (With Restoration Plan)
+    plt.plot(years, recovery_areas, marker='s', linestyle='--', color='blue', linewidth=2.5, markersize=8, label='With Restoration Plan')
 
     # Критическая линия (Threshold Line)
     plt.axhline(y=10000, color='black', linestyle='--', linewidth=1.5)
@@ -407,7 +416,9 @@ def process_area_step(message):
 
     # Добавление подписей данных (exact numbers)
     for i, txt in enumerate(areas):
-        plt.annotate(f'{txt:.1f}', (years[i], areas[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=9)
+        plt.annotate(f'{txt:.1f}', (years[i], areas[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=9, color='darkred')
+    for i, txt in enumerate(recovery_areas):
+        plt.annotate(f'{txt:.1f}', (years[i], recovery_areas[i]), textcoords="offset points", xytext=(0,-15), ha='center', fontsize=9, color='blue')
 
     # Использование логарифмической шкалы если разница слишком велика
     if max(areas) / min(areas) > 100:
