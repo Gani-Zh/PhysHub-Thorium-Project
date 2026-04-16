@@ -105,11 +105,27 @@ QUIZ_QUESTIONS = [
 # Хранилище временных данных пользователей
 user_data = {}
 
+# Глобальная переменная для отслеживания времени последней ошибки API
+API_ERROR_TIME = 0
+
 def get_weather_data(region):
     """
     Получает реальные данные о погоде через OpenWeatherMap API.
     Использует внутренние статические данные в качестве резервных.
     """
+    global API_ERROR_TIME
+
+    # Self-Healing: если ошибка была менее 5 минут назад, используем fallback
+    if time.time() - API_ERROR_TIME < 300:
+        print("API в режиме охлаждения (5 минут), используем локальные данные.")
+        return {
+            'wind_speed': 10.0,
+            'temp': 11,
+            'humidity': 60,
+            'description': 'Облачно',
+            'source': 'static'
+        }
+
     api_key = os.environ.get('OPENWEATHER_API_KEY')
     if not api_key:
         # Плавный переход для конкурса РФМШ (16 апреля 2026)
@@ -124,7 +140,7 @@ def get_weather_data(region):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={region}&appid={api_key}&units=metric&lang=ru"
 
     try:
-        response = requests.get(url, timeout=5)
+        response = requests.get(url, timeout=3)
         response.raise_for_status()
         data = response.json()
 
@@ -135,7 +151,9 @@ def get_weather_data(region):
             'description': data['weather'][0]['description'].capitalize() if data.get('weather') else 'Нет описания',
             'source': 'api'
         }
-    except Exception:
+    except Exception as e:
+        print(f"Ошибка Weather API: {e}")
+        API_ERROR_TIME = time.time()
         # Плавный переход для конкурса РФМШ (16 апреля 2026)
         # Отлавливаем любые ошибки (RequestException, KeyError, JSONDecodeError, etc)
         return {
@@ -620,7 +638,9 @@ def handle_free_text(message):
 if __name__ == '__main__':
     while True:
         try:
+            print("Запуск бота...")
             bot.infinity_polling(timeout=60, long_polling_timeout=60)
         except Exception as e:
-            print(f"Ошибка polling: {e}")
+            print(f"КРИТИЧЕСКАЯ ОШИБКА POLLING: {e}")
+            print("Перезапуск через 5 секунд...")
             time.sleep(5)
