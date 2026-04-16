@@ -155,6 +155,7 @@ def send_welcome(message):
     buttons = [KeyboardButton(region) for region in WIND_SPEEDS.keys()]
     buttons.append(KeyboardButton("Эко-Викторина"))
     buttons.append(KeyboardButton("Эко-Риск на сегодня"))
+    buttons.append(KeyboardButton("Инфо: Кошкар-Ата"))
     markup.add(*buttons)
 
     bot.send_message(
@@ -405,6 +406,25 @@ def process_restoration_plan(message):
 def back_to_menu(message):
     """Возврат в главное меню."""
     send_welcome(message)
+
+@bot.message_handler(func=lambda message: message.text == "Инфо: Кошкар-Ата")
+def process_koshkar_ata_info(message):
+    """Справка о хвостохранилище Кошкар-Ата."""
+    chat_id = message.chat.id
+    info_text = (
+        "☢️ *Хвостохранилище Кошкар-Ата*\n\n"
+        "Кошкар-Ата — это искусственное бессточное озеро-впадина недалеко от Актау, куда десятилетиями сливались "
+        "токсичные и радиоактивные отходы промышленных предприятий. Из-за высыхания озера оголились огромные участки дна.\n\n"
+        "💨 *Опасность:*\n"
+        "Оголенное дно является источником токсичной пыли, содержащей **тяжелые металлы** (свинец, стронций, уран). "
+        "При сильных ветрах эта пыль поднимается в воздух и разносится на десятки километров, отравляя почву, "
+        "растительность и угрожая здоровью жителей Актау и Мунайлинского района.\n\n"
+        "📊 *Как помогает наша модель?*\n"
+        "Наша математическая модель мониторинга позволяет рассчитать скорость и площадь распространения этой "
+        "токсичной пыли (основываясь на реальных показателях ветра). Это помогает экологам планировать зоны "
+        "обязательного озеленения и фиторемедиации (например, посадки саксаула) для создания защитного барьера."
+    )
+    bot.send_message(chat_id, info_text, parse_mode='Markdown')
 
 @bot.message_handler(func=lambda message: message.text == "Эко-Риск на сегодня")
 def process_eco_risk_start(message):
