@@ -134,8 +134,9 @@ def get_weather_data(region):
             'description': data['weather'][0]['description'].capitalize() if data.get('weather') else 'Нет описания',
             'source': 'api'
         }
-    except (requests.exceptions.RequestException, KeyError):
+    except Exception:
         # Плавный переход для конкурса РФМШ (16 апреля 2026)
+        # Отлавливаем любые ошибки (RequestException, KeyError, JSONDecodeError, etc)
         return {
             'wind_speed': 10.0,
             'temp': 11,
@@ -577,4 +578,4 @@ def handle_free_text(message):
         )
 
 if __name__ == '__main__':
-    bot.infinity_polling()
+    bot.infinity_polling(timeout=60, long_polling_timeout=60)
