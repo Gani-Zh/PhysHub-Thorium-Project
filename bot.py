@@ -106,38 +106,41 @@ user_data = {}
 
 def get_weather_data(region):
     """
-    Пытается получить реальные данные о погоде через API.
+    Получает реальные данные о погоде через OpenWeatherMap API.
     Использует внутренние статические данные в качестве резервных.
     """
-    # В реальном приложении здесь был бы API ключ
-    # api_key = os.environ.get('WEATHER_API_KEY')
-    # url = f"http://api.openweathermap.org/data/2.5/weather?q={region}&appid={api_key}&units=metric"
-
-    # Для прототипа используем mock-функцию, имитирующую ответ API
-    try:
-        # Имитируем небольшую задержку и успешный ответ API (или таймаут)
-        # requests.get("https://httpbin.org/delay/0.5", timeout=1)
-
-        # Симулируем динамические погодные условия
-        base_wind = WIND_SPEEDS.get(region, 5)
-        wind_speed = round(base_wind + random.uniform(-2.0, 3.0), 1)
-        # Ограничиваем ветер между 5 и 15 м/с как запрошено для реалистичности
-        wind_speed = max(5.0, min(15.0, wind_speed))
-        temp = random.randint(20, 30) # Температура от 20 до 30 как запрошено
-        humidity = random.randint(20, 60)
-
-        return {
-            'wind_speed': wind_speed,
-            'temp': temp,
-            'humidity': humidity,
-            'source': 'mock_api'
-        }
-    except requests.exceptions.RequestException:
-        # Fallback на статические данные
+    api_key = os.environ.get('OPENWEATHER_API_KEY')
+    if not api_key:
+        # Fallback если ключ не предоставлен
         return {
             'wind_speed': max(5.0, min(15.0, float(WIND_SPEEDS.get(region, 8)))),
             'temp': random.randint(20, 30),
             'humidity': 40,
+            'description': 'Нет данных (ключ API отсутствует)',
+            'source': 'static'
+        }
+
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={region}&appid={api_key}&units=metric&lang=ru"
+
+    try:
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+
+        return {
+            'wind_speed': data['wind']['speed'],
+            'temp': data['main']['temp'],
+            'humidity': data['main']['humidity'],
+            'description': data['weather'][0]['description'].capitalize() if data.get('weather') else 'Нет описания',
+            'source': 'api'
+        }
+    except (requests.exceptions.RequestException, KeyError):
+        # Fallback на статические данные при ошибке сети или изменении структуры API
+        return {
+            'wind_speed': max(5.0, min(15.0, float(WIND_SPEEDS.get(region, 8)))),
+            'temp': random.randint(20, 30),
+            'humidity': 40,
+            'description': 'Нет данных (ошибка API)',
             'source': 'static'
         }
 
@@ -161,6 +164,7 @@ def process_weather_command(message):
     bot.send_message(
         chat_id,
         f"Текущая погода в Актау (Мангистау):\n"
+        f"☁️ Описание: {weather.get('description', 'Нет данных')}\n"
         f"🌡️ Температура: {weather['temp']}°C\n"
         f"🌬️ Ветер: {weather['wind_speed']} м/с"
     )
@@ -366,8 +370,14 @@ def process_area_step(message):
         f"📊 *Прогноз опустынивания для района {region}*\n"
         f"Тип загрязнения: {pollution}\n"
         f"Начальная площадь: {area} га\n\n"
-        f"Current wind in Mangystau: {wind_speed} м/с. Risk level: {risk_level}.\n\n"
-        f"Прогнозируемая площадь деградации:\n"
+        f"Current wind in Mangystau: {wind_speed} м/с. Risk level: {risk_level}.\n"
+    )
+
+    if wind_speed >= 8.0:
+        report += "⚠️ *High wind speed detected. Dust transport risk increased!*\n"
+
+    report += (
+        f"\nПрогнозируемая площадь деградации:\n"
         f"• Через 5 лет: {areas[1]:.2f} га\n"
         f"• Через 10 лет: {areas[2]:.2f} га\n"
         f"• Через 20 лет: {areas[3]:.2f} га\n\n"
