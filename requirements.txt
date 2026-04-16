@@ -2,3 +2,4 @@ streamlit
 scipy
 matplotlib
 pyTelegramBotAPI
+requests
