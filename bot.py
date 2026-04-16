@@ -414,22 +414,22 @@ def process_area_step(message):
     plt.axhline(y=10000, color='black', linestyle='--', linewidth=1.5)
     plt.text(0.5, 10500, 'Critical Limit', color='black', fontsize=10, fontweight='bold')
 
-    # Добавление подписей данных (exact numbers)
+    # Добавление подписей данных (round numbers)
     for i, txt in enumerate(areas):
-        plt.annotate(f'{txt:.1f}', (years[i], areas[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=9, color='darkred')
+        plt.annotate(f'{int(round(txt))}', (years[i], areas[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=9, color='darkred')
     for i, txt in enumerate(recovery_areas):
-        plt.annotate(f'{txt:.1f}', (years[i], recovery_areas[i]), textcoords="offset points", xytext=(0,-15), ha='center', fontsize=9, color='blue')
+        plt.annotate(f'{int(round(txt))}', (years[i], recovery_areas[i]), textcoords="offset points", xytext=(0,-15), ha='center', fontsize=9, color='blue')
 
     # Использование логарифмической шкалы если разница слишком велика
     if max(areas) / min(areas) > 100:
         plt.yscale('log')
-        plt.ylabel('Площадь деградации (га) [Логарифмическая шкала]', fontsize=12)
+        plt.ylabel('Площадь деградации (Гектары) [Логарифмическая шкала]', fontsize=12)
     else:
-        plt.ylabel('Площадь деградации (га)', fontsize=12)
+        plt.ylabel('Площадь деградации (Гектары)', fontsize=12)
 
     # Настройка графика
-    plt.title(f'Прогноз деградации почвы: {region}', fontsize=14, fontweight='bold')
-    plt.xlabel('Годы', fontsize=12)
+    plt.title(f'Комплексный прогноз деградации почв в {region}', fontsize=14, fontweight='bold')
+    plt.xlabel('Годы мониторинга', fontsize=12)
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.xticks(years)
     plt.legend(loc='upper left', fontsize=9)
