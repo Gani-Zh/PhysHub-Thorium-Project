@@ -2,9 +2,12 @@ import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 import matplotlib.pyplot as plt
 import io
+import os
 
-# Токен для доступа к API Telegram. Замените 'YOUR_API_TOKEN' на ваш реальный токен.
-API_TOKEN = 'YOUR_API_TOKEN'
+# Токен для доступа к API Telegram получаем из переменной окружения
+API_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
+if not API_TOKEN:
+    raise ValueError("Пожалуйста, установите переменную окружения TELEGRAM_BOT_TOKEN")
 
 # Инициализация бота
 bot = telebot.TeleBot(API_TOKEN)
