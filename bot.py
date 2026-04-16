@@ -121,7 +121,9 @@ def get_weather_data(region):
         # Симулируем динамические погодные условия
         base_wind = WIND_SPEEDS.get(region, 5)
         wind_speed = round(base_wind + random.uniform(-2.0, 3.0), 1)
-        temp = random.randint(15, 35)
+        # Ограничиваем ветер между 5 и 15 м/с как запрошено для реалистичности
+        wind_speed = max(5.0, min(15.0, wind_speed))
+        temp = random.randint(20, 30) # Температура от 20 до 30 как запрошено
         humidity = random.randint(20, 60)
 
         return {
@@ -133,8 +135,8 @@ def get_weather_data(region):
     except requests.exceptions.RequestException:
         # Fallback на статические данные
         return {
-            'wind_speed': WIND_SPEEDS.get(region, 5),
-            'temp': 25,
+            'wind_speed': max(5.0, min(15.0, float(WIND_SPEEDS.get(region, 8)))),
+            'temp': random.randint(20, 30),
             'humidity': 40,
             'source': 'static'
         }
@@ -147,6 +149,21 @@ def assess_dust_risk(wind_speed):
         return "Средний (Medium)"
     else:
         return "Высокий (High)"
+
+@bot.message_handler(commands=['weather'])
+@bot.message_handler(func=lambda message: message.text == "☀️ Текущая погода")
+def process_weather_command(message):
+    """Обработчик команды /weather и кнопки '☀️ Текущая погода'."""
+    chat_id = message.chat.id
+    # Используем Актау по умолчанию как запрошено
+    weather = get_weather_data('Актау')
+
+    bot.send_message(
+        chat_id,
+        f"Текущая погода в Актау (Мангистау):\n"
+        f"🌡️ Температура: {weather['temp']}°C\n"
+        f"🌬️ Ветер: {weather['wind_speed']} м/с"
+    )
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
@@ -161,6 +178,7 @@ def send_welcome(message):
     buttons.append(KeyboardButton("Эко-Викторина"))
     buttons.append(KeyboardButton("Эко-Риск на сегодня"))
     buttons.append(KeyboardButton("Инфо: Кошкар-Ата"))
+    buttons.append(KeyboardButton("☀️ Текущая погода"))
     markup.add(*buttons)
 
     bot.send_message(
@@ -269,6 +287,10 @@ def process_back(message):
 
 def process_pollution_step(message):
     """Обработчик выбора типа загрязнения."""
+    if message.text == "⬅️ Назад":
+        process_back(message)
+        return
+
     chat_id = message.chat.id
     pollution = message.text
 
@@ -336,11 +358,15 @@ def process_area_step(message):
     # Расчет площади для каждого года
     areas = [calculate_degradation(area, wind_speed, pollution_coef, y) for y in years]
 
+    # Оценка риска
+    risk_level = assess_dust_risk(wind_speed)
+
     # Текстовый отчет
     report = (
         f"📊 *Прогноз опустынивания для района {region}*\n"
         f"Тип загрязнения: {pollution}\n"
         f"Начальная площадь: {area} га\n\n"
+        f"Current wind in Mangystau: {wind_speed} м/с. Risk level: {risk_level}.\n\n"
         f"Прогнозируемая площадь деградации:\n"
         f"• Через 5 лет: {areas[1]:.2f} га\n"
         f"• Через 10 лет: {areas[2]:.2f} га\n"
@@ -527,6 +553,9 @@ def handle_free_text(message):
 
     elif matches(["help", "advice", "how to", "помощь", "совет", "советы", "как помочь"]) or "how to" in text or "как помочь" in text:
         eco_advisor(chat_id)
+
+    elif matches(["погода", "weather"]) or "погода" in text or "weather" in text:
+        process_weather_command(message)
 
     else:
         bot.send_message(
