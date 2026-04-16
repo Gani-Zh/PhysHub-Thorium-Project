@@ -151,6 +151,11 @@ def assess_dust_risk(wind_speed):
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     """Обработчик команды /start и /help."""
+    # Сброс состояния для предотвращения soft-lock
+    chat_id = message.chat.id
+    if chat_id in user_data:
+        user_data[chat_id].pop('state', None)
+
     markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     buttons = [KeyboardButton(region) for region in WIND_SPEEDS.keys()]
     buttons.append(KeyboardButton("Эко-Викторина"))
@@ -256,12 +261,12 @@ def process_region_step(message):
         "Теперь выберите тип загрязнения:",
         reply_markup=markup
     )
+    bot.register_next_step_handler(message, process_pollution_step)
 
 @bot.message_handler(func=lambda message: message.text == "⬅️ Назад")
 def process_back(message):
     send_welcome(message)
 
-@bot.message_handler(func=lambda message: message.text in POLLUTION_COEFFICIENTS.keys())
 def process_pollution_step(message):
     """Обработчик выбора типа загрязнения."""
     chat_id = message.chat.id
@@ -492,6 +497,14 @@ def handle_free_text(message):
     """Обработчик свободного текста."""
     text = message.text.lower()
     chat_id = message.chat.id
+    original_text = message.text
+
+    # Игнорируем системные кнопки, регионы и типы загрязнений
+    ignore_list = list(WIND_SPEEDS.keys()) + list(POLLUTION_COEFFICIENTS.keys()) + [
+        "⬅️ Назад", "⬅️ Назад в меню", "Эко-Викторина", "Эко-Риск на сегодня", "Инфо: Кошкар-Ата", "План восстановления"
+    ]
+    if original_text in ignore_list:
+        return
 
     def matches(keywords):
         pattern = r'\b(?:' + '|'.join(map(re.escape, keywords)) + r')\b'
